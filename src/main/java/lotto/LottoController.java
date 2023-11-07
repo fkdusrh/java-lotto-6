@@ -11,16 +11,45 @@ public class LottoController {
     private static IOController ioController;
     private static LottoGenerator lottoGenerator;
     private static List<Lotto> lottoList;
-
-    private static Map<Integer,Integer> winLottoCount;
+    private static Map<Integer, Integer> winLottoCount;
     private static int bonusNumber;
 
     public LottoController() {
         init();
         input();
         compareTotalLottoList();
+        calcuratePrizeMoney();
         printResult();
 
+    }
+
+    private void calcuratePrizeMoney() {
+        int totalPrizeMoney = 0;
+
+        for (Map.Entry<Integer, Integer> entry : winLottoCount.entrySet()) {
+            int matchingNumbers = entry.getValue();
+            Prize prize = getPrize(matchingNumbers);
+            totalPrizeMoney += prize.getAmount();
+        }
+
+        System.out.println("총 당첨금액: " + totalPrizeMoney + "원");
+    }
+
+    private Prize getPrize(int matchingNumbers) {
+
+        if (matchingNumbers == 3)
+            return Prize.THREE_MATCH;
+        if (matchingNumbers == 4)
+            return Prize.FOUR_MATCH;
+        if (matchingNumbers == 5) {
+            if (hasBonusBall())
+                return Prize.FIVE_MATCH_BONUS;
+            return Prize.FIVE_MATCH;
+        }
+        if (matchingNumbers == 6)
+            return Prize.SIX_MATCH;
+
+        return Prize.ZERO_MATCH;
     }
 
     private void input() {
@@ -36,10 +65,11 @@ public class LottoController {
     }
 
     private void compareTotalLottoList() {
-        for(Lotto lotto : lottoList){
+        for (Lotto lotto : lottoList) {
             compareLotto(lotto);
         }
-        System.out.println("winLottoCount:"+winLottoCount);
+
+        System.out.println("winLottoCount:" + winLottoCount);
     }
 
     private void compareLotto(Lotto lotto) {
@@ -49,15 +79,15 @@ public class LottoController {
                 matchedNumbers++;
             }
         }
-        winLottoCount.put(matchedNumbers, winLottoCount.getOrDefault(matchedNumbers,0)+1);
+        winLottoCount.put(matchedNumbers, winLottoCount.getOrDefault(matchedNumbers, 0) + 1);
     }
 
     private void generateLottoNumber() {
-        int CountOfLotto = price/1000;
+        int CountOfLotto = price / 1000;
 
-        System.out.println("\n"+CountOfLotto+InstructionMessage.PRINT_LOTTO_COUNT.getMessageText());
+        System.out.println("\n" + CountOfLotto + InstructionMessage.PRINT_LOTTO_COUNT.getMessageText());
 
-        for(int makeLotto=1;makeLotto<=CountOfLotto;makeLotto++){
+        for (int makeLotto = 1; makeLotto <= CountOfLotto; makeLotto++) {
             lottoList.add(new Lotto(makeRandomNumber()));
         }
 
@@ -73,11 +103,10 @@ public class LottoController {
     }
 
     public static void init() {
-        //IOController에서 금액, 당첨번호, 보너스 번호 입력받기
-        lottoList=new LinkedList<>();
-        lottoGenerator= new LottoGenerator();
+        lottoList = new LinkedList<>();
+        lottoGenerator = new LottoGenerator();
         ioController = new IOController();
-        winLottoCount= new HashMap<>();
+        winLottoCount = new HashMap<>();
 
     }
 }

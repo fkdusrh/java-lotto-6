@@ -115,4 +115,9 @@ public class IOController {
         if(number < 1 || number >45)
             throw  new IllegalArgumentException(ExceptionMessage.INPUT_OUT_OF_ARRANGE.getMessageText());
     }
+
+    public void printUserLottoNumbers(List<Lotto> lottoList) {
+        for(Lotto lotto : lottoList)
+            System.out.println(lotto.getNumbers());
+    }
 }
