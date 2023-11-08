@@ -2,6 +2,7 @@ package lotto;
 
 import camp.nextstep.edu.missionutils.Randoms;
 
+import java.text.DecimalFormat;
 import java.util.*;
 
 public class LottoController {
@@ -11,8 +12,11 @@ public class LottoController {
     private static IOController ioController;
     private static LottoGenerator lottoGenerator;
     private static List<Lotto> lottoList;
-    private static Map<Integer, Integer> winLottoCount;
+    private static int[] winLottoCount;
     private static int bonusNumber;
+    private static final long[] prize = {2000000000, 30000000, 1500000, 50000, 5000};
+    private static double profitPercentage;
+
 
     public LottoController() {
         init();
@@ -24,32 +28,48 @@ public class LottoController {
     }
 
     private void calcuratePrizeMoney() {
+
         int totalPrizeMoney = 0;
 
-        for (Map.Entry<Integer, Integer> entry : winLottoCount.entrySet()) {
-            int matchingNumbers = entry.getValue();
-            Prize prize = getPrize(matchingNumbers);
-            totalPrizeMoney += prize.getAmount();
+        System.out.println(Arrays.toString(winLottoCount));
+        for (int i = 0; i < 5; i++) {
+            totalPrizeMoney += prize[i] * winLottoCount[i + 1];
         }
 
-        System.out.println("총 당첨금액: " + totalPrizeMoney + "원");
+        calculateProfitPercentage(totalPrizeMoney);
+
     }
 
-    private Prize getPrize(int matchingNumbers) {
+    private void calculateProfitPercentage(int totalPrizeMoney) {
+        profitPercentage = ((double) (totalPrizeMoney - price) / price) * 100;
 
-        if (matchingNumbers == 3)
-            return Prize.THREE_MATCH;
-        if (matchingNumbers == 4)
-            return Prize.FOUR_MATCH;
-        if (matchingNumbers == 5) {
-            if (hasBonusBall())
-                return Prize.FIVE_MATCH_BONUS;
-            return Prize.FIVE_MATCH;
+    }
+
+    private void putCountOfPrize(int matchedNumbers, Lotto lotto) {
+
+        if (matchedNumbers == 5) {
+            if (!hasBonusNumber(lotto)) {
+                winLottoCount[3]++;
+                return;
+            }
         }
-        if (matchingNumbers == 6)
-            return Prize.SIX_MATCH;
+        if (matchedNumbers == 6) {
+            winLottoCount[1]++;
+            return;
+        }
+        if (matchedNumbers <= 4 && matchedNumbers >= 3) {
+            winLottoCount[8 - matchedNumbers]++;
+        }
+    }
 
-        return Prize.ZERO_MATCH;
+    private boolean hasBonusNumber(Lotto lotto) {
+        for (int a : lotto.getNumbers()) {
+            if (a == bonusNumber) {
+                winLottoCount[2]++;
+                return true;
+            }
+        }
+        return false;
     }
 
     private void input() {
@@ -57,11 +77,6 @@ public class LottoController {
         generateLottoNumber();
         winNumber = ioController.inputWinNumber();
         bonusNumber = ioController.inputBonusNumber();
-    }
-
-    private void printResult() {
-        // 결과 출력하는 메서드
-        //ioController.printResult();
     }
 
     private void compareTotalLottoList() {
@@ -79,7 +94,8 @@ public class LottoController {
                 matchedNumbers++;
             }
         }
-        winLottoCount.put(matchedNumbers, winLottoCount.getOrDefault(matchedNumbers, 0) + 1);
+        putCountOfPrize(matchedNumbers, lotto);
+
     }
 
     private void generateLottoNumber() {
@@ -106,7 +122,7 @@ public class LottoController {
         lottoList = new LinkedList<>();
         lottoGenerator = new LottoGenerator();
         ioController = new IOController();
-        winLottoCount = new HashMap<>();
+        winLottoCount = new int[6];
 
     }
 }
