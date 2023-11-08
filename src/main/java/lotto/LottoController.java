@@ -27,6 +27,24 @@ public class LottoController {
 
     }
 
+    private void printResult() {
+        System.out.println("당첨 통계\n---");
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("3개 일치 (5,000원) - " + winLottoCount[5] + "개\n");
+        sb.append("4개 일치 (50,000원) - " + winLottoCount[4] + "개\n");
+        sb.append("5개 일치 (1,500,000원) - " + winLottoCount[3] + "개\n");
+        sb.append("5개 일치, 보너스 볼 일치 (30,000,000원) - " + winLottoCount[2] + "개\n");
+        sb.append(" 6개 일치 (2,000,000,000원) - " + winLottoCount[1] + "개\n");
+        sb.append("총 수익률은 " + formatToTwoDecimalPlaces() + "%입니다.");
+
+        System.out.println(sb.toString());
+    }
+
+    private String formatToTwoDecimalPlaces() {
+        DecimalFormat decimalFormat = new DecimalFormat("#.##");
+        return decimalFormat.format(profitPercentage);
+    }
     private void calcuratePrizeMoney() {
 
         int totalPrizeMoney = 0;
